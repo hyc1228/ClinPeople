@@ -1,5 +1,5 @@
 ﻿// Toony Colors Pro+Mobile 2
-// (c) 2014-2019 Jean Moreno
+// (c) 2014-2023 Jean Moreno
 
 Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 {
@@ -33,6 +33,11 @@ Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 		[Space]
 	[TCP2Separator]
 
+	[TCP2HeaderHelp(EMISSION, Emission)]
+		[NoScaleOffset] _EmissionMap ("Emission (RGB)", 2D) = "black" {}
+		[HDR] _EmissionColor ("Emission Color", Color) = (1,1,1,1.0)
+	[TCP2Separator]
+
 	[TCP2HeaderHelp(SPECULAR, Specular)]
 		//SPECULAR
 		_SpecColor ("Specular Color", Color) = (0.5, 0.5, 0.5, 1)
@@ -46,6 +51,12 @@ Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 		_RimMax ("Rim Max", Range(0,2)) = 1.0
 	[TCP2Separator]
 
+	[TCP2HeaderHelp(TRANSPARENCY)]
+		//Blending
+		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendTCP2 ("Blending Source", Float) = 5
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlendTCP2 ("Blending Dest", Float) = 10
+	[TCP2Separator]
+
 
 		//Avoid compile error if the properties are ending with a drawer
 		[HideInInspector] __dummy__ ("unused", Float) = 0
@@ -54,11 +65,13 @@ Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 	SubShader
 	{
 
-		Tags { "RenderType"="Opaque" }
+		Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
+		Blend [_SrcBlendTCP2] [_DstBlendTCP2]
+		Cull Off
 
 		CGPROGRAM
 
-		#pragma surface surf ToonyColorsCustom addshadow fullforwardshadows exclude_path:deferred exclude_path:prepass
+		#pragma surface surf ToonyColorsCustom addshadow fullforwardshadows keepalpha exclude_path:deferred exclude_path:prepass
 		#pragma target 3.0
 
 		//================================================================
@@ -69,6 +82,8 @@ Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 		float _Shadow_HSV_H;
 		float _Shadow_HSV_S;
 		float _Shadow_HSV_V;
+		half4 _EmissionColor;
+		sampler2D _EmissionMap;
 		fixed _Smoothness;
 		fixed4 _RimColor;
 		fixed _RimMin;
@@ -171,7 +186,10 @@ Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 			float3 albedoHsv = rgb2hsv(s.Albedo.rgb);
 			albedoHsv += float3(_Shadow_HSV_H/360,_Shadow_HSV_S,_Shadow_HSV_V);
 			s.Albedo = lerp(hsv2rgb(albedoHsv), s.Albedo, ramp);
-		#if !defined(UNITY_PASS_FORWARDBASE)
+		// Note: we consider that a directional light with a cookie is supposed to be the main one (even though Unity renders it as an additional light).
+		// Thus when using a main directional light AND another directional light with a cookie, then the shadow color might be applied twice.
+		// You can remove the DIRECTIONAL_COOKIE check below the prevent that.
+		#if !defined(UNITY_PASS_FORWARDBASE) && !defined(DIRECTIONAL_COOKIE)
 			_SColor = fixed4(0,0,0,1);
 		#endif
 			_SColor = lerp(_HColor, _SColor, _SColor.a);	//Shadows intensity through alpha
@@ -193,6 +211,11 @@ Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 
 		#ifdef UNITY_LIGHT_FUNCTION_APPLY_INDIRECT
 			c.rgb += s.Albedo * gi.indirect.diffuse;
+		#endif
+
+		#if defined(UNITY_PASS_FORWARDADD)
+			//multiply RGB with alpha for additive lights for proper transparency behavior
+			c.rgb *= c.a;
 		#endif
 
 			//Rim light mask
@@ -227,6 +250,12 @@ Shader "Toony Colors Pro 2/Examples/Cat Demo/Cat/Style 1"
 			half rim = 1.0f - saturate( dot(viewDir, o.Normal) );
 			rim = smoothstep(_RimMin, _RimMax, rim);
 			o.Rim = rim;
+
+			//Emission
+			half3 emissiveColor = half3(1,1,1);
+			emissiveColor *= tex2D(_EmissionMap, IN.UV_MAINTEX);
+			emissiveColor *= _EmissionColor.rgb * _EmissionColor.a;
+			o.Emission += emissiveColor;
 		}
 
 		ENDCG
