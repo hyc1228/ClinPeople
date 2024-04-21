@@ -24,9 +24,9 @@ ModelImporter:
     rigImportErrors: 
     rigImportWarnings: "Avatar Rig Configuration mis-match. Inbetween bone rotation
       in configuration does not match rotation in animation file:\n\t'DEF-thigh.L.001'
-      : rotation error = 5.475923 deg\n\t'DEF-shin.L.001' : rotation error = 12.225852
-      deg\n\t'DEF-thigh.R.001' : rotation error = 7.203894 deg\n\t'DEF-shin.R.001'
-      : rotation error = 11.725844 deg\n"
+      : rotation error = 5.475924 deg\n\t'DEF-shin.L.001' : rotation error = 12.225853
+      deg\n\t'DEF-thigh.R.001' : rotation error = 7.203895 deg\n\t'DEF-shin.R.001'
+      : rotation error = 11.725847 deg\n"
     animationImportErrors: 
     animationImportWarnings: "\nClip '42_Combo' has import animation warnings that
       might lower retargeting quality:\nNote: Activate translation DOF on avatar
@@ -484,7 +484,7 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
