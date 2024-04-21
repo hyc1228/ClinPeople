@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9abc07fe881d3f344a0f1ee243083f23, type: 3}
   m_Name: LightAttack3
   m_EditorClassIdentifier: 
-  m_animatorStateName: Slash3Fast
-  m_releaseTime: 0.8
+  m_animatorStateName: attack_003
+  m_releaseTime: 0.533

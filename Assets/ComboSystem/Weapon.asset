@@ -16,4 +16,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: bf7985852f824df4287b3a8cabdd2d5d, type: 2}
   - {fileID: 11400000, guid: 2fdb56e348a42084880e7272a070bd4d, type: 2}
   - {fileID: 11400000, guid: f2dcb04bb95a9b047be38841a204b0d6, type: 2}
+  - {fileID: 11400000, guid: fd199ffffe2106d4ea17ade35c042b7c, type: 2}
   m_heavyComboConfigs: []
